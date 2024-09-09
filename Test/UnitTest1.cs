@@ -33,6 +33,15 @@ namespace Test
                 {"IV",4},
                 {"VI",6},
                 {"VII",7},
+                {"VIII",8},
+                {"VIIII",9},
+                {"IX",9},
+                {"IIIIIIIIII",10},
+                {"XIV",14},
+                {"XXXX",40}, 
+                {"XL",40},
+                {"MMXXIV",2024},
+                {"MMMCMXCIX",3999}
 
 
             };
@@ -54,7 +63,13 @@ namespace Test
                 {"Q", ["Q",0] },
                 {"s", ["s",0] },
                 {"sX", ["s",0] },
-                {"Xd", ["d",1] }
+                {"Xd", ["d",1] },
+                {"XsI", ["s",1] },
+                {"XVIs", ["s",3] },
+                {"IIIIIIIIs", ["s",8] },
+                {"XVIIIIIIsXVI", ["s",8] },
+                {"MCMXCLY", ["Y", 6] },
+                {"SWXF", ["S", 0] },
             };
 
             foreach(var testCase in exTestCases)
@@ -70,10 +85,21 @@ namespace Test
             Dictionary<String, Object[]> exTestCases2 = new()
             {
                 {"IM", ["I", "M",0] },
-               {"XIM", ["I", "M",1] },
-               {"IMX", ["I", "M",0] },
+                {"XIM", ["I", "M",1] },
+                {"IMX", ["I", "M",0] },
                 {"XMD", ["X", "M",0] },
                 {"XID", ["X", "M",0] },
+                {"IL", ["I", "L",1] },
+                {"IC", ["I", "C",1] },
+                {"VX", ["V", "X",0] },
+                {"VL", ["V", "L",0] },
+                {"DM", ["D", "M",0] },
+                {"MIM", ["M", "I",2] },
+                {"LC", ["L", "C",1] },
+                {"XXXXIM", ["X", "I",3] },
+                {"XXXXXVIM", ["X", "I",5] },
+                {"LLLLLLXXXXXVIM", ["X", "I",11] },
+
             };
 
             foreach (var testCase in exTestCases2)

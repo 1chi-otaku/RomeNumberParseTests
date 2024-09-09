@@ -10,34 +10,52 @@ namespace App
 
         public static RomanNumber Parse(String input)
         {
-
             int value = 0;
-            int prevDigit = 0; //TODO: Rename to ~RightDigit
-            int pos = input.Length;
+            int prevDigit = 0;
+            int pos = 0; 
 
-            foreach (char c in input.Reverse())
+            foreach (char c in input)
             {
-                pos -= 1;
                 int digit;
-                
-                try 
+
+                try
                 {
                     digit = DigitValue(c.ToString());
                 }
                 catch
                 {
                     throw new FormatException($"Invalid symbol '{c}' in position {pos}");
-                } 
-                if(prevDigit != 0 && prevDigit / digit > 10)
-                {
-                    throw new FormatException($"Invalid order '{c}' before {input[pos+1]} in position {pos}");
                 }
-                value += (digit >= prevDigit) ? digit : (-digit);
-                prevDigit = digit;
 
-           }
-            return new(value);
+                if (digit > prevDigit)
+                {
+                    if (prevDigit != 0 && !IsValidSubtraction(prevDigit, digit))
+                    {
+                        throw new FormatException($"Invalid order '{input[pos - 1]}' before '{c}' in position {pos - 1}");
+                    }
+
+                    value += (digit - 2 * prevDigit); 
+                }
+                else
+                {
+                    value += digit;
+                }
+
+                prevDigit = digit;
+                pos++;
+            }
+
+            return new RomanNumber(value);
         }
+
+
+        private static bool IsValidSubtraction(int prevDigit, int currentDigit)
+        {
+            return (prevDigit == 1 && (currentDigit == 5 || currentDigit == 10)) 
+                || (prevDigit == 10 && (currentDigit == 50 || currentDigit == 100)) 
+                || (prevDigit == 100 && (currentDigit == 500 || currentDigit == 1000)); 
+        }
+
 
         public static int DigitValue(String digit) => digit switch
         {
