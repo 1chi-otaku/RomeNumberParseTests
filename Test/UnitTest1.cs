@@ -1,4 +1,5 @@
 ﻿using App;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test
@@ -7,41 +8,180 @@ namespace Test
     public class RomanNumberTest
     {
 
+        private readonly Dictionary<String, int> digitValues = new()
+            {
+                {"N",0},
+                {"I",1},
+                {"V",5},
+                {"X",10},
+                {"L",50},
+                {"C",100},
+                {"D",500},
+                {"M",1000},
 
+            };
         [TestMethod]
-        public void Parse_I_ReturnsOne()
+        public void ParseTest()
         {
-            RomanNumber rn = RomanNumber.Parse("I");
-            Assert.AreEqual(1, rn.Value, "I should return 1.");
+            Dictionary<String, int> testCases = new()
+            {
+                {"N",0},
+                {"I",1},
+                {"II",2},
+                {"III",3},
+                {"IIII",4}, //Цим тестом ми дозволяємо неоптимальну форму числа.
+                {"IV",4},
+                {"VI",6},
+                {"VII",7},
+
+
+            };
+            foreach (var testCase in testCases)
+            {
+                RomanNumber rn = RomanNumber.Parse(testCase.Key);
+                Assert.IsNotNull(rn);
+                Assert.AreEqual(
+                    testCase.Value,
+                    rn.Value,
+                    $"{testCase.Key} -> {testCase.Value}"
+                );
+            }
+
+            
+            Dictionary<String, Object[]> exTestCases = new()
+            {
+                {"W", ["W",0] },
+                {"Q", ["Q",0] },
+                {"s", ["s",0] },
+                {"sX", ["s",0] },
+                {"Xd", ["d",1] }
+            };
+
+            foreach(var testCase in exTestCases)
+            {
+                var ex = Assert.ThrowsException<FormatException>(
+                () => RomanNumber.Parse(testCase.Key), $"Parse {testCase.Key} must throw FormatException");
+
+                Assert.IsTrue(ex.Message.Contains($"Invalid symbol '{testCase.Value[0]}' in position {testCase.Value[1]}"),
+               "FormatException must contain data about symbol and its position."
+               + $"testCase: '{testCase.Key}', ex.Message: '{ex.Message}'"); ;
+            }
+
+            Dictionary<String, Object[]> exTestCases2 = new()
+            {
+                {"IM", ["I", "M",0] },
+               {"XIM", ["I", "M",1] },
+               {"IMX", ["I", "M",0] },
+                {"XMD", ["X", "M",0] },
+                {"XID", ["X", "M",0] },
+            };
+
+            foreach (var testCase in exTestCases2)
+            {
+                var ex = Assert.ThrowsException<FormatException>(
+               () => RomanNumber.Parse(testCase.Key), $"Parse {testCase.Key} must throw FormatException");
+
+                Assert.IsTrue(ex.Message.Contains($"Invalid order "),
+              "FormatException must contain data about symbol and its position."
+              + $"testCase: '{testCase.Key}', ex.Message: '{ex.Message}'"); ;
+            }
+
+
         }
 
         [TestMethod]
-        public void Parse_IV_ReturnsFour()
+        public void DigitValueTest()
         {
-            RomanNumber rn = RomanNumber.Parse("IV");
-            Assert.AreEqual(4, rn.Value, "IV should return 4.");
+            foreach (var testCase in digitValues)
+            {
+                Assert.AreEqual(
+                    testCase.Value,
+                    RomanNumber.DigitValue(testCase.Key),
+                    $"{testCase.Key} -> {testCase.Value}");
+            }
+            Random random = new Random();
+            for (int i = 0; i < 100; i++)
+            {
+                string invalidDigit = ((char) random.Next(256)).ToString();
+
+
+                if (digitValues.ContainsKey(invalidDigit))
+                {
+                    i--;
+                    return;
+                }
+
+                ArgumentException ex2 = Assert.ThrowsException<ArgumentException>(
+                   () => RomanNumber.DigitValue(invalidDigit), $"Argument Exception expected for digit = {invalidDigit}");
+
+                Assert.IsFalse(String.IsNullOrEmpty(ex2.Message), "Argument must have a message.");
+
+                Assert.IsTrue(
+                    ex2.Message.Contains("'digit'"),
+                    "ArgumentException message must contain 'digit'"
+                    );
+
+                Assert.IsTrue(
+                    ex2.Message.Contains(nameof(RomanNumber))
+                    && ex2.Message.Contains(nameof(RomanNumber.DigitValue)),
+                    $"ArgumentException message must contain {(nameof(RomanNumber))} and {(nameof(RomanNumber.DigitValue))}'"
+                    );
+
+            }
+
+            ArgumentException ex =  Assert.ThrowsException<ArgumentException>(
+                () => RomanNumber.DigitValue(""), "Empty String Exception Expected"
+            );
+            // вимагитимемо від винятку 
+            // - повідомлення, що не є порожнім. містить назву аргументу (digit) //містить значення аргументу, що призвело до винятку
+            //назву классу та методу і що викинув виняток.
+
+            Assert.IsFalse(String.IsNullOrEmpty( ex.Message ), "Argument must have a message.");
+
+            Assert.IsTrue(
+                ex.Message.Contains("'digit'"),
+                "ArgumentException message must contain 'digit'"
+                );
+
+            Assert.IsTrue(
+                ex.Message.Contains(nameof(RomanNumber)) 
+                && ex.Message.Contains(nameof(RomanNumber.DigitValue)),
+                $"ArgumentException message must contain {(nameof(RomanNumber))} and {(nameof(RomanNumber.DigitValue))}'"
+                );
         }
 
         [TestMethod]
-        public void Parse_V_ReturnsFive()
+        public void ToStringTest()
         {
-            RomanNumber rn = RomanNumber.Parse("V");
-            Assert.AreEqual(5, rn.Value, "V should return 5.");
+            Dictionary<int, String> testCases = new() //Append or Concat
+            {
+                {2,"II" },
+                {49, "XLIX"},
+                {999,"CMXCIX" },
+                {444,"CDXLIV" },
+                {3343,"MMMCCCXLIII" },
+                {3889, "MMMDCCCLXXXIX"},
+                {3954, "MMMCMLIV" },
+                {4,"IV" },
+                {44,"XLIV" },
+                
+            };
+
+            digitValues.Keys.ToList().ForEach(k => testCases.Add(digitValues[k], k) );
+
+
+
+            foreach (var testCase in testCases)
+            {
+                Assert.AreEqual(new RomanNumber(testCase.Key).ToString(),
+                    testCase.Value,
+                    $"ToString({testCase.Key}) ----> {testCase.Value}");
+            }
         }
 
-        [TestMethod]
-        public void Parse_IX_ReturnsNine()
-        {
-            RomanNumber rn = RomanNumber.Parse("IX");
-            Assert.AreEqual(9, rn.Value, "IX should return 9.");
-        }
 
-        [TestMethod]
-        public void Parse_X_ReturnsTen()
-        {
-            RomanNumber rn = RomanNumber.Parse("X");
-            Assert.AreEqual(10, rn.Value, "X should return 10.");
-        }
+
+
 
     }
 }
