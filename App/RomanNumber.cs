@@ -6,7 +6,7 @@ namespace App
     public record RomanNumber(int Value)
     {
         private readonly int _value = Value;
-        public int Value => _value;
+        public int Value { get => _value; init { _value = value; } }
 
         public static RomanNumber Parse(String input)
         {
@@ -70,6 +70,16 @@ namespace App
             _ => throw new ArgumentException($"Message: {nameof(RomanNumber)}::{nameof(DigitValue)}: 'digit' {digit} has invalid value " )
         };
 
+        public RomanNumber Plus(RomanNumber other)
+        {
+            return this with {Value = Value + other.Value };
+        }
+
+        public RomanNumber Plus(string other)
+        {
+            return this with { Value = Value + Parse(other).Value };
+        }
+
         public override string? ToString()
         {
             if (_value == 0) return "N";
@@ -108,6 +118,8 @@ namespace App
 
             return sb.ToString();
         }
+
+
 
     }
 

@@ -100,6 +100,7 @@ namespace Test
                 {"XXXXXVIM", ["X", "I",5] },
                 {"LLLLLLXXXXXVIM", ["X", "I",11] },
 
+
             };
 
             foreach (var testCase in exTestCases2)
@@ -112,6 +113,19 @@ namespace Test
               + $"testCase: '{testCase.Key}', ex.Message: '{ex.Message}'"); ;
             }
 
+            //String[] exTestCases3 =
+            //{
+            //    "IXC",
+            //    "IIX",
+            //    "VIX",
+
+            //};
+
+            //foreach (var testCase in exTestCases3)
+            //{
+            //    var ex = Assert.ThrowsException<FormatException>(
+            //  () => RomanNumber.Parse(testCase), $"Parse {testCase} must throw FormatException");
+            //}
 
         }
 
@@ -206,8 +220,32 @@ namespace Test
         }
 
 
+        [TestMethod]
+        public void PlusTest()
+        {
+            RomanNumber rn1 = new(1);
+            RomanNumber rn2 = new(2);
+            var rn3 = rn1.Plus(rn2);
+
+            Assert.IsNotNull(rn3);
+            Assert.IsInstanceOfType(rn3, typeof(RomanNumber), "Plus Result must have RomanNumber type");
+
+            Assert.AreNotSame(rn3, rn1, "Plus Result is new instance, neither first, nor second argument");
+            Assert.AreNotSame(rn3, rn2, "Plus Result is new instance, neither first, nor second argument (v)");
 
 
+            Assert.AreEqual(rn1.Value + rn2.Value, rn3.Value, "Plus arithemtic");
+
+            RomanNumber rn12 = RomanNumber.Parse("IV");
+            String rn22 = "VI";
+            RomanNumber rn32 = rn12.Plus(rn22);
+
+            Assert.IsNotNull(rn32);
+            Assert.AreNotSame(rn32, rn12, "Plus string is new instance, neither first, nor second argument");
+            Assert.AreEqual("X", rn32.ToString(), "Plus String arithemtic ");
+
+
+        }
 
     }
 }
